@@ -4,8 +4,228 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice to Text Converter</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'voice_recorder/css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .recorder-container {
+            margin-bottom: 40px;
+        }
+
+        .record-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            animation: pulse 2s infinite;
+        }
+
+        .record-btn.processing {
+            background: linear-gradient(45deg, #3742fa, #2f3542);
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+
+        .record-icon {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .record-btn.recording .record-icon {
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .status.recording {
+            color: #ff4757;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .transcription-container {
+            border-top: 2px solid #eee;
+            padding-top: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .result-box.has-content {
+            background: #e8f5e8;
+            border-color: #28a745;
+        }
+
+        .result-box.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .placeholder {
+            color: #adb5bd;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .transcription-text {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .debug-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f1f3f4;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .record-btn {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -30,6 +250,316 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'voice_recorder/js/recorder.js' %}"></script>
+
+    <script>
+        class VoiceRecorder {
+            constructor() {
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.isRecording = false;
+                this.startTime = null;
+                this.timerInterval = null;
+                
+                this.recordButton = document.getElementById('recordButton');
+                this.statusElement = document.getElementById('recordingStatus');
+                this.timerElement = document.getElementById('timer');
+                this.loadingIndicator = document.getElementById('loadingIndicator');
+                this.resultContainer = document.getElementById('transcriptionResult');
+                
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            sampleRate: 16000,
+                            channelCount: 1,
+                            echoCancellation: true,
+                            noiseSuppression: true
+                        } 
+                    });
+                    
+                    // Try to use WAV if supported, otherwise use webm
+                    let options;
+                    if (MediaRecorder.isTypeSupported('audio/wav')) {
+                        options = { mimeType: 'audio/wav' };
+                    } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                        options = { mimeType: 'audio/webm' };
+                    } else {
+                        options = {};
+                    }
+                    
+                    this.mediaRecorder = new MediaRecorder(stream, options);
+                    this.setupEventListeners();
+                    
+                    console.log('Recorder initialized with type:', this.mediaRecorder.mimeType);
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    this.showError('Could not access microphone. Please check permissions.');
+                }
+            }
+            
+            setupEventListeners() {
+                this.recordButton.addEventListener('click', () => {
+                    if (this.isRecording) {
+                        this.stopRecording();
+                    } else {
+                        this.startRecording();
+                    }
+                });
+                
+                this.mediaRecorder.addEventListener('dataavailable', (event) => {
+                    if (event.data.size > 0) {
+                        this.audioChunks.push(event.data);
+                    }
+                });
+                
+                this.mediaRecorder.addEventListener('stop', () => {
+                    this.processRecording();
+                });
+            }
+            
+            startRecording() {
+                this.audioChunks = [];
+                this.mediaRecorder.start();
+                this.isRecording = true;
+                this.startTime = Date.now();
+                
+                // Update UI
+                this.recordButton.classList.add('recording');
+                this.recordButton.querySelector('.btn-text').textContent = 'Stop Recording';
+                this.statusElement.textContent = 'Recording...';
+                this.statusElement.classList.add('recording');
+                
+                // Start timer
+                this.timerInterval = setInterval(() => {
+                    this.updateTimer();
+                }, 1000);
+                
+                // Clear previous results
+                this.clearResults();
+            }
+            
+            stopRecording() {
+                this.mediaRecorder.stop();
+                this.isRecording = false;
+                
+                // Update UI
+                this.recordButton.classList.remove('recording');
+                this.recordButton.classList.add('processing');
+                this.recordButton.querySelector('.btn-text').textContent = 'Processing...';
+                this.statusElement.textContent = 'Processing...';
+                this.statusElement.classList.remove('recording');
+                
+                // Stop timer
+                clearInterval(this.timerInterval);
+            }
+            
+            updateTimer() {
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                this.timerElement.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            async processRecording() {
+                try {
+                    // Create audio blob
+                    const audioBlob = new Blob(this.audioChunks, { 
+                        type: this.mediaRecorder.mimeType 
+                    });
+                    
+                    console.log('Audio blob created:', {
+                        size: audioBlob.size,
+                        type: audioBlob.type
+                    });
+                    
+                    // Show loading
+                    this.showLoading();
+                    
+                    // Convert to WAV format in browser
+                    const wavBlob = await this.convertToWav(audioBlob);
+                    
+                    // Send WAV to server
+                    await this.sendToServer(wavBlob);
+                    
+                } catch (error) {
+                    console.error('Error processing recording:', error);
+                    this.showError('Error processing recording: ' + error.message);
+                } finally {
+                    this.resetUI();
+                }
+            }
+            
+            async convertToWav(audioBlob) {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Convert blob to array buffer
+                    const arrayBuffer = await audioBlob.arrayBuffer();
+                    
+                    // Decode audio data
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    
+                    // Create WAV file
+                    const wavBuffer = this.audioBufferToWav(audioBuffer);
+                    
+                    return new Blob([wavBuffer], { type: 'audio/wav' });
+                } catch (error) {
+                    console.error('WAV conversion failed:', error);
+                    throw new Error('Could not convert audio to WAV format');
+                }
+            }
+            
+            audioBufferToWav(buffer) {
+                const length = buffer.length;
+                const sampleRate = buffer.sampleRate;
+                const numberOfChannels = buffer.numberOfChannels;
+                const bytesPerSample = 2;
+                const blockAlign = numberOfChannels * bytesPerSample;
+                const byteRate = sampleRate * blockAlign;
+                const dataSize = length * blockAlign;
+                const bufferSize = 44 + dataSize;
+                
+                const arrayBuffer = new ArrayBuffer(bufferSize);
+                const view = new DataView(arrayBuffer);
+                
+                // WAV header
+                const writeString = (offset, string) => {
+                    for (let i = 0; i < string.length; i++) {
+                        view.setUint8(offset + i, string.charCodeAt(i));
+                    }
+                };
+                
+                writeString(0, 'RIFF');
+                view.setUint32(4, bufferSize - 8, true);
+                writeString(8, 'WAVE');
+                writeString(12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true);
+                view.setUint16(22, numberOfChannels, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, byteRate, true);
+                view.setUint16(32, blockAlign, true);
+                view.setUint16(34, bytesPerSample * 8, true);
+                writeString(36, 'data');
+                view.setUint32(40, dataSize, true);
+                
+                // Convert audio data to PCM
+                let offset = 44;
+                for (let i = 0; i < length; i++) {
+                    for (let channel = 0; channel < numberOfChannels; channel++) {
+                        const channelData = buffer.getChannelData(channel);
+                        const sample = Math.max(-1, Math.min(1, channelData[i]));
+                        view.setInt16(offset, sample * 0x7FFF, true);
+                        offset += 2;
+                    }
+                }
+                
+                return arrayBuffer;
+            }
+            
+            async sendToServer(wavBlob) {
+                try {
+                    const formData = new FormData();
+                    
+                    // Always send as WAV since we converted it
+                    formData.append('audio', wavBlob, 'recording.wav');
+                    
+                    console.log('Sending WAV file:', {
+                        size: wavBlob.size,
+                        type: wavBlob.type
+                    });
+                    
+                    const response = await fetch('/transcribe/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showResult(data.transcription, data.debug);
+                    } else {
+                        this.showError(data.error, data.debug);
+                    }
+                    
+                } catch (error) {
+                    console.error('Network error:', error);
+                    this.showError('Network error: Could not connect to server');
+                }
+            }
+            
+            showResult(transcription, debug) {
+                this.hideLoading();
+                this.resultContainer.className = 'result-box has-content';
+                
+                let content = `<div class="transcription-text">${transcription}</div>`;
+                
+                if (debug) {
+                    content += `
+                        <div class="debug-info">
+                            <strong>Debug Info:</strong><br>
+                            File: ${debug.file_name || 'N/A'}<br>
+                            Type: ${debug.content_type || 'N/A'}<br>
+                            Size: ${debug.file_size || 'N/A'} bytes
+                        </div>
+                    `;
+                }
+                
+                this.resultContainer.innerHTML = content;
+            }
+            
+            showError(message, debug) {
+                this.hideLoading();
+                this.resultContainer.className = 'result-box error';
+                
+                let content = `<div class="error-message">Error: ${message}</div>`;
+                
+                if (debug) {
+                    content += `
+                        <div class="debug-info">
+                            <strong>Debug Info:</strong><br>
+                            File: ${debug.file_name || 'N/A'}<br>
+                            Type: ${debug.content_type || 'N/A'}<br>
+                            Size: ${debug.file_size || 'N/A'} bytes
+                        </div>
+                    `;
+                }
+                
+                this.resultContainer.innerHTML = content;
+            }
+            
+            showLoading() {
+                this.loadingIndicator.classList.remove('hidden');
+                this.resultContainer.classList.add('hidden');
+            }
+            
+            hideLoading() {
+                this.loadingIndicator.classList.add('hidden');
+                this.resultContainer.classList.remove('hidden');
+            }
+            
+            clearResults() {
+                this.resultContainer.className = 'result-box';
+                this.resultContainer.innerHTML = '<p class="placeholder">Your transcription will appear here...</p>';
+            }
+            
+            resetUI() {
+                this.recordButton.classList.remove('recording', 'processing');
+                this.recordButton.querySelector('.btn-text').textContent = 'Start Recording';
+                this.statusElement.textContent = 'Not recording';
+                this.statusElement.classList.remove('recording');
+                this.timerElement.textContent = '00:00';
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new VoiceRecorder();
+        });
+    </script>
 </body>
 </html>
