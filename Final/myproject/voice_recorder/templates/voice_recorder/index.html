@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice to Text Converter</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'voice_recorder/css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Voice to Text Converter</h1>
+        <p>Click the button below to start recording your voice</p>
+        <div class="recorder-container">
+            <button id="recordButton" class="record-btn">
+                <span class="record-icon"></span>
+                <span class="btn-text">Start Recording</span>
+            </button>
+            <div id="recordingStatus" class="status">Not recording</div>
+            <div id="timer" class="timer">00:00</div>
+        </div>
+        <div class="transcription-container">
+            <h2>Transcription</h2>
+            <div id="loadingIndicator" class="loading-indicator hidden">
+                <div class="spinner"></div>
+                <span>Processing audio...</span>
+            </div>
+            <div id="transcriptionResult" class="result-box">
+                <p class="placeholder">Your transcription will appear here...</p>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'voice_recorder/js/recorder.js' %}"></script>
+</body>
+</html>
