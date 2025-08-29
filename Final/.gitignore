@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+db.sqlite3
+*.log
+local_settings.py
+media/
+static/
+
+# FFmpeg binary (too large for git)
+myproject/ffmpeg/
